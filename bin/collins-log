@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-require 'collins_cli'
+require 'collins-cli'
 
 begin
   exit Collins::CLI::Log.new.parse!.validate!.run!
