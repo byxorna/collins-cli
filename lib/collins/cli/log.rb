@@ -8,6 +8,9 @@ require 'set'
 
 module Collins::CLI
   class Log
+
+    include Mixins
+
     LOG_LEVELS = Collins::Api::Logging::Severity.constants.map(&:to_s)
     OPTIONS_DEFAULTS = {
       :tags => [],
@@ -97,7 +100,6 @@ _EOE_
         @options[:tags] = input.map{|l| l.split(/\s+/)[0] rescue nil}.compact.uniq
       end
       raise "You need to give me some assets to display logs; see --help" if @options[:tags].empty? and not @options[:show_all]
-      setup_collins
       @validated = true
       self
     end
@@ -128,13 +130,6 @@ _EOE_
     end
 
     private
-    def setup_collins
-      begin
-        @collins = Collins::Authenticator.setup_client timeout: @options[:timeout], config_file: @options[:config], prompt: true
-      rescue => e
-        raise "Unable to set up Collins client! #{e.message}"
-      end
-    end
 
     def output_logs(logs)
       # colorize output before computing width of fields
@@ -155,7 +150,7 @@ _EOE_
     def grab_logs
       if @options[:tags].empty?
         begin
-          @collins.all_logs(@search_opts)
+          collins.all_logs(@search_opts)
         rescue => e
           $stderr.puts "Unable to fetch logs:".colorize(@options[:sev_colors]['WARNING']) + " #{e.message}"
           []
@@ -163,7 +158,7 @@ _EOE_
       else
         @options[:tags].flat_map do |t|
           begin
-            @collins.logs(t, @search_opts)
+            collins.logs(t, @search_opts)
           rescue => e
             $stderr.puts "Unable to fetch logs for #{t}:".colorize(@options[:sev_colors]['WARNING']) + " #{e.message}"
             []

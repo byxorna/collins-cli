@@ -5,7 +5,7 @@ require 'yaml'
 require 'optparse'
 require 'colorize'
 
-['log'].each {|r| require File.join('collins/cli',r) }
+['log','helper','mixins'].each {|r| require File.join('collins/cli',r) }
 
 module Collins ; module CLI ; end ; end
 
