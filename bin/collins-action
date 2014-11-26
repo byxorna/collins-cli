@@ -1,0 +1,130 @@
+#!/usr/bin/env ruby
+# collins-action
+# provision and manage assets in collins easily from the CLI
+
+require 'collins_auth'
+require 'yaml'
+require 'optparse'
+require 'etc'
+require 'colorize'
+
+SUCCESS = "SUCCESS".colorize(:color => :green)
+ERROR = "ERROR".colorize(:color => :red)
+ALLOWABLE_POWER_ACTIONS = ['reboot','rebootsoft','reboothard','on','off','poweron','poweroff','identify']
+options = {
+  :timeout => 120,
+  :build_contact => Etc.getlogin,
+  :provision => { }
+}
+
+basename = File.basename(File.realpath($0))
+parser = OptionParser.new do |opts|
+  opts.banner = "Usage: #{basename} [options]"
+  #TODO -s to show provisoining_profiles
+  #TODO update IPMI stuff with ipmi_update
+  #TODO create IPMI with ipmi_create
+  #TODO implement IP allocation
+  opts.separator "Actions:"
+  opts.on('-P','--provision',"Provision assets (see Provisioning flags).") {|v| options[:mode] = :provision }
+  opts.on('-S','--power-status',"Show IPMI power status.") {|v| options[:mode] = :power_status }
+  opts.on('-A','--power-action ACTION',String,"Perform IPMI power ACTION on assets"){|v| options[:mode] = :power ; options[:power_action] = v}
+
+  opts.separator ""
+  opts.separator "Provisioning Flags:"
+  opts.on('-n','--nodeclass NODECLASS',String,"Nodeclass to provision as. (Required)") {|v| options[:provision][:nodeclass] = v }
+  opts.on('-p','--pool POOL',String,"Provision with pool POOL.") {|v| options[:provision][:pool] = v }
+  opts.on('-r','--role ROLE',String,"Provision with primary role ROLE.") {|v| options[:provision][:primary_role] = v }
+  opts.on('-R','--secondary-role ROLE',String,"Provision with secondary role ROLE.") {|v| options[:provision][:secondary_role] = v }
+  opts.on('-s','--suffix SUFFIX',String,"Provision with suffix SUFFIX.") {|v| options[:provision][:suffix] = v }
+  opts.on('-a','--activate',"Activate server on provision (useful with SL plugin) (Default: ignored)") {|v| options[:provision][:activate] = true }
+  opts.on('-b','--build-contact USER',String,"Build contact. (Default: #{options[:build_contact]})") {|v| options[:build_contact] = v }
+
+  opts.separator ""
+  opts.separator "General:"
+  opts.on('-t','--tags TAG[,...]',Array,"Tags to work on, comma separated") {|v| options[:tags] = v.map(&:to_sym)}
+  opts.on('-C','--config CONFIG',String,'Use specific Collins config yaml for Collins::Client') {|v| options[:config] = v}
+  opts.on('-h','--help',"Help") {puts opts ; exit 0}
+
+  opts.separator ""
+  opts.separator "Examples:"
+  opts.separator <<_EXAMPLES_
+  Provision some machines:
+    cf -Sunallocated -arack_position:716|#{basename} -P -napiwebnode6 -RALL
+  Show power status:
+    cf ^dev6-gabe|#{basename} -S
+  Power cycle a bunch of machines:
+    #{basename} -t 001234,004567,007890 -A reboot
+_EXAMPLES_
+end.parse!
+
+if ARGV.size > 0
+  # anything else left in ARGV is garbage
+  puts "Not sure what I am supposed to do with these arguments: #{ARGV.join(' ')}"
+  puts parser
+  exit 1
+end
+
+# convert what we allow to be specified to what collins::power allows
+options[:power_action] = 'rebootsoft' if options[:power_action] == 'reboot'
+
+abort "See --help for #{basename} usage" unless [:provision, :power_status, :power].include? options[:mode]
+abort "You need to specify at least a nodeclass when provisioning" if options[:mode] == :provision && options[:provision][:nodeclass].nil?
+abort "Unknown power action #{options[:power_action]}, expecting one of #{ALLOWABLE_POWER_ACTIONS.join(',')}" unless ALLOWABLE_POWER_ACTIONS.include? options[:power_action]
+if options[:mode] == :power
+  begin
+    options[:power_action] = Collins::Power.normalize_action options[:power_action]
+  rescue => e
+    abort "Unknown power action #{options[:power_action]}! #{e.message}"
+  end
+end
+
+if options[:tags].nil? or options[:tags].empty?
+  # read tags from stdin. first field on the line is the tag
+  input = ARGF.readlines
+  options[:tags] = input.map{|l| l.split(/\s+/)[0] rescue nil}.compact.uniq
+end
+
+begin
+  @collins = Collins::Authenticator.setup_client timeout: options[:timeout], config_file: options[:config], prompt: true
+rescue => e
+  abort "Unable to set up Collins client! #{e.message}"
+end
+
+def api_call desc, method, *varargs
+  success,message = begin
+    [@collins.send(method,*varargs),nil]
+  rescue => e
+    [false,e.message]
+  end
+  puts "#{success ? SUCCESS : ERROR}: #{desc}#{message.nil? ? nil : " (%s)" % e.message}"
+  success
+end
+
+action_successes = []
+options[:tags].each do |t|
+  case options[:mode]
+  when :provision
+    action_string = "#{t} provisioning with #{options[:provision].map{|k,v| "#{k}:#{v}"}.join(" ")} by #{options[:build_contact]}... "
+    printf action_string
+    begin
+      res = @collins.provision(t, options[:provision][:nodeclass], options[:build_contact], options[:provision])
+      puts (res ? SUCCESS : ERROR )
+      action_successes << res
+    rescue => e
+      puts "#{ERROR} (#{e.message})"
+      action_successes << false
+    end
+  when :power_status
+    begin
+      s = @collins.power_status(t)
+      puts "#{SUCCESS}: #{t} power status is #{s}"
+    rescue => e
+      puts "#{ERROR}: Unable to query power status for #{t}#{e.message.nil? ? nil : " (%s)" % e.message}"
+    end
+  when :power
+    action_successes << api_call("#{t} performing #{options[:power_action]}", :power!, t, options[:power_action])
+  end
+end
+
+exit action_successes.all? ? 0 : 1
+

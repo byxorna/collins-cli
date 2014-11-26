@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+
+ALLOWED_ACTIONS = {
+  :find => ['query','find'],
+  :modify => ['modify','set'],
+  :log => ['log'],
+  :action => ['provision','action']
+}
+action = ARGV.shift
+target,_ = ALLOWED_ACTIONS.select {|k,v| v.any? {|handle| ! %r|^#{action}|.match(handle).nil? } }.first
+if action.nil? || target.nil?
+  abort <<_MESSAGE_
+Usage: #{File.basename(File.realpath($0))} <command> [options]
+Available commands:
+  query, find:        Search for assets in Collins
+  modify, set:        Add and remove attributes, change statuses, and log to assets
+  log:                Display log messages on assets
+  provision, action:  Provision, control power status, allocate IPs, update IPMI info
+_MESSAGE_
+end
+exec File.join(__dir__,"collins-#{target}"), *ARGV
