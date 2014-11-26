@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.bindir        = 'bin'
   s.executables   = Dir.glob('bin/*').map{|x| File.basename x}
 
-  s.add_dependency "colorize"
+  s.add_dependency "colorize", '~> 0.7.3'
   s.add_dependency "collins_auth", '~> 0.1.2'
   s.add_dependency "collins_client", '~> 0.2.11'
 
