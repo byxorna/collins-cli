@@ -34,4 +34,34 @@ module Collins ; module CLI ; module Mixins
     success
   end
 
+  def as_query?(attrs)
+    attrs.any?{|k,v| v.is_a? Array}
+  end
+
+  def convert_to_query(op, attrs, options)
+    # we want to support being able to query -Smaintenance:noop,:running,:provisioning_problem
+    # and not have the states ored together. Handle status/state pairs separately
+    basic_query = attrs.reject {|k,v| [:status,:state].include?(k)}.map do |k,v|
+      next if v.nil?
+      if v.is_a? Array
+        "(" + v.map{|x| "#{k} = #{x}"}.join(' OR ') + ")"
+      else
+        "#{k} = #{v}"
+      end
+    end.compact.join(" #{op} ")
+    # because they are provided in pairs, lets handle them together
+    # create the (( STATUS = maintenance AND STATE = noop) OR (STATE = provisioning_problem)) query
+    if options[:status_state]
+      status_query = options[:status_state].flat_map do |ss|
+        h = {}
+        h[:status], h[:state] = ss.split(':')
+        h[:status] = nil if h[:status].nil? or h[:status].empty?
+        h[:state] = nil if h[:state].nil? or h[:state].empty?
+        "( " + h.map {|k,v| v.nil? ? nil : "#{k.to_s.upcase} = #{v}"}.compact.join(" AND ") + " )"
+      end.compact.join(' OR ')
+      status_query = "( #{status_query} )"
+    end
+    [basic_query,status_query].reject {|q| q.nil? or q.empty?}.join(" #{op} ")
+  end
+
 end ; end ; end
