@@ -19,6 +19,8 @@ Gem::Specification.new do |s|
   s.add_dependency "colorize", '~> 0.7.3'
   s.add_dependency "collins_auth", '~> 0.1.2'
   s.add_dependency "collins_client", '~> 0.2.11'
+  s.add_development_dependency "rake", '~> 10.4.0'
+  s.add_development_dependency "rspec", '~> 3.1.0'
 
   s.platform = Gem::Platform::RUBY
   s.required_ruby_version = '>= 1.9.2'
