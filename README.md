@@ -3,6 +3,8 @@ collins-cli
 
 CLI scripts for interacting with Collins API
 
+[![Gem Version](https://badge.fury.io/rb/collins-cli.svg)](http://badge.fury.io/rb/collins-cli)
+
 ## Overview
 
 Main entry point is the ```collins``` binary.
