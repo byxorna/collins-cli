@@ -64,13 +64,13 @@ if ARGV.size > 0
   exit 1
 end
 
-# convert what we allow to be specified to what collins::power allows
-options[:power_action] = 'rebootsoft' if options[:power_action] == 'reboot'
 
 abort "See --help for #{basename} usage" unless [:provision, :power_status, :power].include? options[:mode]
 abort "You need to specify at least a nodeclass when provisioning" if options[:mode] == :provision && options[:provision][:nodeclass].nil?
-abort "Unknown power action #{options[:power_action]}, expecting one of #{ALLOWABLE_POWER_ACTIONS.join(',')}" unless ALLOWABLE_POWER_ACTIONS.include? options[:power_action]
 if options[:mode] == :power
+  # convert what we allow to be specified to what collins::power allows
+  options[:power_action] = 'rebootsoft' if options[:power_action] == 'reboot'
+  abort "Unknown power action #{options[:power_action]}, expecting one of #{ALLOWABLE_POWER_ACTIONS.join(',')}" unless ALLOWABLE_POWER_ACTIONS.include? options[:power_action]
   begin
     options[:power_action] = Collins::Power.normalize_action options[:power_action]
   rescue => e
