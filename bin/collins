@@ -1,21 +1,40 @@
 #!/usr/bin/env ruby
+require 'collins-cli'
 
 ALLOWED_ACTIONS = {
-  :find => ['query','find'],
-  :modify => ['modify','set'],
-  :log => ['log'],
-  :action => ['provision','action']
+  Collins::CLI::Find => ['query','find'],
+  Collins::CLI::Modify => ['modify','set'],
+  Collins::CLI::Log => ['log'],
+  Collins::CLI::Provision => ['provision'],
+  Collins::CLI::Power => ['power'],
+#  Collins::CLI::IPAM => ['ip','address','ipaddress','ipmi'],
 }
-action = ARGV.shift
-target,_ = ALLOWED_ACTIONS.select {|k,v| v.any? {|handle| ! %r|^#{action}|.match(handle).nil? } }.first
-if action.nil? || target.nil?
-  abort <<_MESSAGE_
-Usage: #{File.basename(File.realpath($0))} <command> [options]
+
+HELP_MESSAGE = "Usage: #{File.basename(File.realpath($0))} <command> [options]
 Available commands:
   query, find:        Search for assets in Collins
   modify, set:        Add and remove attributes, change statuses, and log to assets
   log:                Display log messages on assets
-  provision, action:  Provision, control power status, allocate IPs, update IPMI info
-_MESSAGE_
+  provision:          Provision assets
+  power:              Control and show power status
+  ip, address, ipmi:  Allocate IPs, update IPMI info"
+
+abort HELP_MESSAGE if ARGV.empty?
+action = ARGV.shift
+targets = ALLOWED_ACTIONS.select {|k,v| v.any? {|handle| ! %r|^#{action}|.match(handle).nil? } }
+target,_ = targets.first
+if ['-h','--help'].include? action
+  puts HELP_MESSAGE
+  exit 0
+elsif targets.empty? or target.nil?
+  abort ["Unknown action #{action}!","",HELP_MESSAGE].join("\n")
+elsif targets.length > 1
+  abort ["Action #{action} was ambiguous! Please be more specific (i.e. type the whole action out)","",HELP_MESSAGE].join("\n")
 end
-exec File.join(__dir__,"collins-#{target}"), *ARGV
+
+begin
+  exit target.new.parse!.validate!.run!
+rescue => e
+  #abort e.message
+  raise e
+end

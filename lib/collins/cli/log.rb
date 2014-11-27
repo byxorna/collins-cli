@@ -36,7 +36,7 @@ module Collins::CLI
       :size => 20,
       :filter => nil,
     }
-    BASENAME = 'collins-log'
+    PROG_NAME = 'collins log'
 
     def initialize
       @parsed = false
@@ -49,9 +49,9 @@ module Collins::CLI
     end
 
     def parse!(argv = ARGV)
-      raise "No flags given! See --help for #{BASENAME} usage" if argv.empty?
+      raise "No flags given! See --help for #{PROG_NAME} usage" if argv.empty?
       OptionParser.new do |opts|
-        opts.banner = "Usage: #{BASENAME} [options]"
+        opts.banner = "Usage: #{PROG_NAME} [options]"
         opts.on('-a','--all',"Show logs from ALL assets") {|v| @options[:show_all] = true}
         opts.on('-n','--number LINES',Integer,"Show the last LINES log entries. (Default: #{@search_opts[:size]})") {|v| @search_opts[:size] = v}
         opts.on('-t','--tags TAGS',Array,"Tags to work on, comma separated") {|v| @options[:tags] = v}
@@ -67,17 +67,17 @@ Severities:
 
 Examples:
   Show last 20 logs for an asset
-    #{BASENAME} -t 001234
+    #{PROG_NAME} -t 001234
   Show last 100 logs for an asset
-    #{BASENAME} -t 001234 -n100
+    #{PROG_NAME} -t 001234 -n100
   Show last 10 logs for 2 assets that are ERROR severity
-    #{BASENAME} -t 001234,001235 -n10 -sERROR
+    #{PROG_NAME} -t 001234,001235 -n10 -sERROR
   Show last 10 logs all assets that are not note or informational severity
-    #{BASENAME} -a -n10 -s'!informational,!note'
+    #{PROG_NAME} -a -n10 -s'!informational,!note'
   Show last 10 logs for all web nodes that are provisioned having verification in the message
-    collins find -S provisioned -n webnode\$ | #{BASENAME} -n10 -s debug | grep -i verification
+    collins find -S provisioned -n webnode\$ | #{PROG_NAME} -n10 -s debug | grep -i verification
   Tail logs for all assets that are provisioning
-    collins find -Sprovisioning,provisioned | #{BASENAME} -f
+    collins find -Sprovisioning,provisioned | #{PROG_NAME} -f
 _EOE_
       end.parse!(argv)
       @parsed = true
@@ -120,10 +120,11 @@ _EOE_
           output_logs(new_logs)
           @logs_seen = @logs_seen | new_logs.map(&:ID)
         end
+        return true
       rescue Interrupt
-        true
+        return true
       rescue
-        false
+        return false
       ensure
         @running = false
       end

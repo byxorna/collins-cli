@@ -7,18 +7,34 @@ CLI scripts for interacting with Collins API
 
 ## Overview
 
-Main entry point is the ```collins``` binary.
+```collins-cli``` uses the ```collins_auth``` gem for authentication, so it relies on you either typing in your credentials every time, or setting up a ~/.collins.yml file. The base format for the config file is as follows:
 
+    ---
+    host: https://172.16.118.8
+    username: myuser
+    # omit password to have collins auth prompt you
+    password: mypass
+
+(see https://github.com/tumblr/collins/tree/master/support/ruby/collins-auth for more details)
+
+Main entry point is the ```collins``` binary:
+
+    $ collins -h
     Usage: collins <command> [options]
     Available commands:
       query, find:        Search for assets in Collins
       modify, set:        Add and remove attributes, change statuses, and log to assets
       log:                Display log messages on assets
-      provision, action:  Provision, control power status, allocate IPs, update IPMI info
+      provision:          Provision assets
+      power:              Control and show power status
+      ip, address, ipmi:  Allocate IPs, update IPMI info
 
-## Searching - collins-find
+## Find Assets - collins find
 
-    Usage: collins-find [options] [hostnamepattern]
+Use ```collins find``` to quickly construct complex queries of your assets in Collins. Bonus points for piping the output of ```collins find``` into another program.
+
+    $ collins find -h
+    Usage: collins find [options] [hostnamepattern]
     Query options:
         -t, --tag TAG[,...]              Assets with tag[s] TAG
         -T, --type TYPE                  Only show assets with type TYPE
@@ -61,7 +77,9 @@ Main entry point is the ```collins``` binary.
         Query for all develnode6 nodes with a value for PUPPET_SERVER
           cf -n develnode6 -a puppet_server -H
 
-## Logging - collins-log
+## View Logs - collins log
+
+Pipe the output of ```collins find``` into ```collins log``` to pull recent logs, or tail logs. Very useful while watching provisioning. Reads asset tags from ARGF if ```--tags``` aren't provided.
 
     Usage: collins-log [options]
         -a, --all                        Show logs from ALL assets
@@ -87,9 +105,11 @@ Main entry point is the ```collins``` binary.
       Show last 10 logs for all web nodes that are provisioned having verification in the message
         cf -S provisioned -n webnode$ | collins-log -n10 -s debug | grep -i verification
 
-## Modification - collins-modify
+## Modification - collins modify
 
-    Usage: collins-modify [options]
+Pipe the output of ```collins find``` into ```collins modify``` to change statuses, create and delete attributes, write log messages, etc. Reads asset tags from ARGF if ```--tags``` aren't provided.
+
+    Usage: collins modify [options]
         -a attribute:value,              Set attribute=value. : between key and value. attribute will be uppercased.
             --set-attribute
         -d, --delete-attribute attribute Delete attribute.
@@ -116,33 +136,31 @@ Main entry point is the ```collins``` binary.
     
     Examples:
       Set an attribute on some hosts:
-        collins-modify -t 001234,004567 -a my_attribute:true
+        collins modify -t 001234,004567 -a my_attribute:true
       Delete an attribute on some hosts:
-        collins-modify -t 001234,004567 -d my_attribute
+        collins modify -t 001234,004567 -d my_attribute
       Delete and add attribute at same time:
-        collins-modify -t 001234,004567 -a new_attr:test -d old_attr
+        collins modify -t 001234,004567 -a new_attr:test -d old_attr
       Set machine into maintenace noop:
-        collins-modify -t 001234 -S maintenance:maint_noop -r "I do what I want"
+        collins modify -t 001234 -S maintenance:maint_noop -r "I do what I want"
       Set machine back to allocated:
-        collins-modify -t 001234 -S allocated:running -r "Back to allocated"
+        collins modify -t 001234 -S allocated:running -r "Back to allocated"
       Set machine back to new without setting state:
-        collins-modify -t 001234 -S new -r "Dunno why you would want this"
+        collins modify -t 001234 -S new -r "Dunno why you would want this"
       Create a log entry:
-        collins-modify -t 001234 -l'computers are broken and everything is horrible' -Lwarning
+        collins modify -t 001234 -l'computers are broken and everything is horrible' -Lwarning
       Read from stdin:
-        cf -n develnode | collins-modify -d my_attribute
-        cf -n develnode -S allocated | collins-modify -a collectd_version:5.2.1-52
-        echo -e "001234\n001235\n001236"| collins-modify -a test_attribute:'hello world'
+        cf -n develnode | collins modify -d my_attribute
+        cf -n develnode -S allocated | collins modify -a collectd_version:5.2.1-52
+        echo -e "001234\n001235\n001236"| collins modify -a test_attribute:'hello world'
 
-## Actions - collins-action
+## Provision - collins provision
 
-    Usage: collins-action [options]
-    Actions:
-        -P, --provision                  Provision assets (see Provisioning flags).
-        -S, --power-status               Show IPMI power status.
-        -A, --power-action ACTION        Perform IPMI power ACTION on assets
-    
-    Provisioning Flags:
+Pipe the output of ```collins find``` into ```collins provision``` to provision assets. Reads asset tags from ARGF if ```--tags``` aren't provided.
+
+    $ collins provision -h
+    Usage: collins provision [options]
+
         -n, --nodeclass NODECLASS        Nodeclass to provision as. (Required)
         -p, --pool POOL                  Provision with pool POOL.
         -r, --role ROLE                  Provision with primary role ROLE.
@@ -150,6 +168,25 @@ Main entry point is the ```collins``` binary.
         -s, --suffix SUFFIX              Provision with suffix SUFFIX.
         -a, --activate                   Activate server on provision (useful with SL plugin) (Default: ignored)
         -b, --build-contact USER         Build contact. (Default: gabe)
+
+    General:
+        -t, --tags TAG[,...]             Tags to work on, comma separated
+        -C, --config CONFIG              Use specific Collins config yaml for Collins::Client
+        -h, --help                       Help
+
+    Examples:
+      Provision some machines:
+        collins find -Sunallocated -arack_position:716|collins provision -P -napiwebnode6 -RALL
+
+## Power Management - collins power
+
+Manage and show power states with ```collins power```
+
+    $ collins power -h
+    Usage: collins power [options]
+    
+        -s, --status                     Show IPMI power status
+        -p, --power ACTION               Perform IPMI power ACTION
     
     General:
         -t, --tags TAG[,...]             Tags to work on, comma separated
@@ -157,17 +194,11 @@ Main entry point is the ```collins``` binary.
         -h, --help                       Help
     
     Examples:
-      Provision some machines:
-        cf -Sunallocated -arack_position:716|collins-action -P -napiwebnode6 -RALL
-      Show power status:
-        cf ^dev6-gabe|collins-action -S
-      Power cycle a bunch of machines:
-        collins-action -t 001234,004567,007890 -A reboot
+      Reset some machines:
+        collins power -t 001234,003456,007895 -p reboot
 
 ## TODO
 
-I know the architecture is BRUTAL. This was all organically created; I need to refactor stuff out into libraries to facilitate code sharing between the utilities
-
-* Implement IP allocation in collins-action
-* Implement IPMI stuff in collins-action
-* Share code between binaries
+* Implement IP allocation in collins-ipam
+* Implement IPMI stuff in collins-ipmi
+* Share code between binaries more

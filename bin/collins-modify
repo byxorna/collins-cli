@@ -1,8 +1,0 @@
-#!/usr/bin/env ruby
-require 'collins-cli'
-
-begin
-  exit Collins::CLI::Modify.new.parse!.validate!.run!
-rescue => e
-  abort e.message
-end

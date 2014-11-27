@@ -24,14 +24,14 @@ module Collins ; module CLI ; module Mixins
     end
   end
 
-  def api_call desc, method, *varargs
-    success,message = begin
-      [collins.send(method,*varargs),nil]
+  def api_call desc, method, tag, *varargs
+    result,message = begin
+      [collins.send(method,tag,*varargs),nil]
     rescue => e
       [false,e.message]
     end
-    puts "#{success ? SUCCESS : ERROR}: #{desc}#{message.nil? ? nil : " (%s)" % e.message}"
-    success
+    puts "#{tag} #{desc % result}: #{result ? SUCCESS : ERROR}#{message.nil? ? nil : " (%s)" % e.message}"
+    result
   end
 
   def as_query?(attrs)

@@ -8,7 +8,7 @@ module Collins::CLI
     include Mixins
     include Formatter   # how to display assets
 
-    PROG_NAME = 'collins-find'
+    PROG_NAME = 'collins find'
     QUERY_DEFAULTS = {
       :operation => 'AND',
       :size => 9999,
@@ -24,7 +24,7 @@ module Collins::CLI
       :config           => nil           # collins config to give to setup_client
     }
 
-    attr_reader :options
+    attr_reader :options, :query_opts, :search_attrs
 
     def initialize
       @parsed, @validated = false, false
@@ -33,7 +33,7 @@ module Collins::CLI
       @options = OPTION_DEFAULTS.clone
     end
 
-    def parse!(argv = [])
+    def parse!(argv = ARGV)
       raise "See --help for #{PROG_NAME} usage" if argv.empty?
       OptionParser.new do |opts|
         opts.banner = "Usage: #{PROG_NAME} [options] [hostnamepattern]"
@@ -111,6 +111,7 @@ _EXAMPLES_
       # hostname is the final option, no flags
       search_attrs[:hostname] = argv.shift
       @parsed = true
+      self
     end
 
     def validate!
@@ -133,15 +134,17 @@ _EXAMPLES_
       else
         query_opts.merge!(search_attrs)
       end
+      self
     end
 
     def run!
       begin
         assets = collins.find(query_opts)
       rescue => e
-        abort "Error querying collins: #{e.message}"
+        raise "Error querying collins: #{e.message}"
       end
-      format_assets(assets, options[:display])
+      format_assets(assets, options)
+      true
     end
 
   end

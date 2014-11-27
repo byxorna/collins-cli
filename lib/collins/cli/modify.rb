@@ -1,6 +1,6 @@
 require 'collins-cli'
 
-module Collins ; module CLI
+module Collins::CLI
   class Modify
 
     include Mixins
@@ -22,9 +22,9 @@ module Collins ; module CLI
       :timeout    => 120,
       :config     => nil
     }
-    PROG_NAME = 'collins-modify'
+    PROG_NAME = 'collins modify'
 
-    attr_accessor :options
+    attr_reader :options
 
     def initialize
       @options = OPTIONS_DEFAULTS.clone
@@ -32,7 +32,7 @@ module Collins ; module CLI
       @parsed = false
     end
 
-    def parse!(argv=[])
+    def parse!(argv = ARGV)
       OptionParser.new do |opts|
         opts.banner = "Usage: #{PROG_NAME} [options]"
         opts.on('-a','--set-attribute attribute:value',String,"Set attribute=value. : between key and value. attribute will be uppercased.") do |x|
@@ -42,23 +42,23 @@ module Collins ; module CLI
             exit 1
           end
           a,v = x.split(':')
-          options[:attributes][a.upcase.to_sym] = v
+          @options[:attributes][a.upcase.to_sym] = v
         end
-        opts.on('-d','--delete-attribute attribute',String,"Delete attribute.") {|v| options[:delete_attributes] << v.to_sym }
+        opts.on('-d','--delete-attribute attribute',String,"Delete attribute.") {|v| @options[:delete_attributes] << v.to_sym }
         opts.on('-S','--set-status status[:state]',String,'Set status (and optionally state) to status:state. Requires --reason') do |v|
           status,state = v.split(':')
-          options[:status] = status.upcase if not status.nil? and not status.empty?
-          options[:state] = state.upcase if not state.nil? and not state.empty?
+          @options[:status] = status.upcase if not status.nil? and not status.empty?
+          @options[:state] = state.upcase if not state.nil? and not state.empty?
         end
-        opts.on('-r','--reason REASON',String,"Reason for changing status/state.") {|v| options[:reason] = v }
+        opts.on('-r','--reason REASON',String,"Reason for changing status/state.") {|v| @options[:reason] = v }
         opts.on('-l','--log MESSAGE',String,"Create a log entry.") do |v|
-          options[:log_message] = v
+          @options[:log_message] = v
         end
-        opts.on('-L','--level LEVEL',String, LOG_LEVELS + LOG_LEVELS.map(&:downcase),"Set log level. Default level is #{options[:log_level]}.") do |v|
-          options[:log_level] = v.upcase
+        opts.on('-L','--level LEVEL',String, LOG_LEVELS + LOG_LEVELS.map(&:downcase),"Set log level. Default level is #{@options[:log_level]}.") do |v|
+          @options[:log_level] = v.upcase
         end
-        opts.on('-t','--tags TAGS',Array,"Tags to work on, comma separated") {|v| options[:tags] = v.map(&:to_sym)}
-        opts.on('-C','--config CONFIG',String,'Use specific Collins config yaml for Collins::Client') {|v| options[:config] = v}
+        opts.on('-t','--tags TAGS',Array,"Tags to work on, comma separated") {|v| @options[:tags] = v.map(&:to_sym)}
+        opts.on('-C','--config CONFIG',String,'Use specific Collins config yaml for Collins::Client') {|v| @options[:config] = v}
         opts.on('-h','--help',"Help") {puts opts ; exit 0}
         opts.separator ""
         opts.separator "Allowed values (uppercase or lowercase is accepted):"
@@ -93,7 +93,13 @@ _EOF_
     echo -e "001234\\n001235\\n001236"| #{PROG_NAME} -a test_attribute:'hello world'
 _EOF_
       end.parse!(argv)
+      if options[:tags].nil? or options[:tags].empty?
+        # read tags from stdin. first field on the line is the tag
+        input = ARGF.readlines
+        @options[:tags] = input.map{|l| l.split(/\s+/)[0] rescue nil}.compact.uniq
+      end
       @parsed = true
+      self
     end
 
     def validate!
@@ -109,32 +115,28 @@ _EOF_
         raise "State #{options[:state]} doesn't apply to status #{options[:status]} (Should be one of #{states_for_status.join(', ')})" unless options[:state].nil? or states_for_status.include?(options[:state])
       end
 
-      #TODO! remove this from validate!
-      if options[:tags].nil? or options[:tags].empty?
-        # read tags from stdin. first field on the line is the tag
-        input = ARGF.readlines
-        options[:tags] = input.map{|l| l.split(/\s+/)[0] rescue nil}.compact.uniq
-      end
 
       @validated = true
+      self
     end
 
     def run!
       exit_clean = true
       options[:tags].each do |t|
         if options[:log_message]
-          exit_clean = api_call("#{t} create #{options[:log_level].downcase} log #{options[:log_message].inspect}", :log!, t, options[:log_message], options[:log_level]) && exit_clean
+          exit_clean = api_call("create #{options[:log_level].downcase} log #{options[:log_message].inspect}", :log!, t, options[:log_message], options[:log_level]) && exit_clean
         end
         options[:attributes].each do |k,v|
-          exit_clean = api_call("#{t} set #{k}=#{v}", :set_attribute!, t, k, v) && exit_clean
+          exit_clean = api_call("set attribute #{k}=#{v}", :set_attribute!, t, k, v) && exit_clean
         end
         options[:delete_attributes].each do |k|
-          exit_clean = api_call("#{t} delete #{k}", :delete_attribute!, t, k) && exit_clean
+          exit_clean = api_call("delete attribute #{k}", :delete_attribute!, t, k) && exit_clean
         end
         if options[:status]
-          exit_clean = api_call("#{t} set status to #{options[:status]}#{options[:state] ? ":#{options[:state]}" : ''}", :set_status!, t, :status => options[:status], :state => options[:state], :reason => options[:reason]) && exit_clean
+          exit_clean = api_call("set status to #{options[:status]}#{options[:state] ? ":#{options[:state]}" : ''}", :set_status!, t, :status => options[:status], :state => options[:state], :reason => options[:reason]) && exit_clean
         end
       end
+      exit_clean
     end
 
   end
