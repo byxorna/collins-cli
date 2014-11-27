@@ -10,7 +10,7 @@ CLI scripts for interacting with Collins API
 ```collins-cli``` uses the ```collins_auth``` gem for authentication, so it relies on you either typing in your credentials every time, or setting up a ~/.collins.yml file. The base format for the config file is as follows:
 
     ---
-    host: https://172.16.118.8
+    host: https://collins.iata.company.com
     username: myuser
     # omit password to have collins auth prompt you
     password: mypass
@@ -202,3 +202,4 @@ Manage and show power states with ```collins power```
 * Implement IP allocation in collins-ipam
 * Implement IPMI stuff in collins-ipmi
 * Share code between binaries more
+* Write some tests

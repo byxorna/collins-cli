@@ -24,18 +24,19 @@ module Collins::CLI
       :config           => nil           # collins config to give to setup_client
     }
 
-    attr_reader :options, :query_opts, :search_attrs
+    attr_reader :options, :query_opts, :search_attrs, :parser
 
     def initialize
       @parsed, @validated = false, false
       @query_opts = QUERY_DEFAULTS.clone
       @search_attrs = {}
       @options = OPTION_DEFAULTS.clone
+      @parser = nil
     end
 
     def parse!(argv = ARGV)
       raise "See --help for #{PROG_NAME} usage" if argv.empty?
-      OptionParser.new do |opts|
+      @parser = OptionParser.new do |opts|
         opts.banner = "Usage: #{PROG_NAME} [options] [hostnamepattern]"
         opts.separator "Query options:"
         opts.on('-t','--tag TAG[,...]',Array, "Assets with tag[s] TAG") {|v| search_attrs[:tag] = v}
@@ -91,7 +92,7 @@ module Collins::CLI
         opts.separator "Extra options:"
         opts.on('--expire SECONDS',Integer,"Timeout in seconds (0 == forever)") {|v| options[:timeout] = v}
         opts.on('-C','--config CONFIG',String,'Use specific Collins config yaml for Collins::Client') {|v| options[:config] = v}
-        opts.on('-h','--help',"Help") {puts opts ; exit 0}
+        opts.on('-h','--help',"Help") {options[:mode] = :help}
 
         opts.separator ""
         opts.separator <<_EXAMPLES_
@@ -130,20 +131,26 @@ _EXAMPLES_
       # merge search_attrs into query
       if as_query?(search_attrs)
         query_opts[:query] = convert_to_query(query_opts[:operation], search_attrs, options)
-        #puts "Query: #{query_opts[:query]}"
       else
         query_opts.merge!(search_attrs)
       end
+      @validated = true
       self
     end
 
     def run!
-      begin
-        assets = collins.find(query_opts)
-      rescue => e
-        raise "Error querying collins: #{e.message}"
+      raise "Options not yet parsed with #parse!" unless @parsed
+      raise "Options not yet validated with #validate!" unless @validated
+      if options[:mode] == :help
+        puts parser
+      else
+        begin
+          assets = collins.find(query_opts)
+        rescue => e
+          raise "Error querying collins: #{e.message}"
+        end
+        format_assets(assets, options)
       end
-      format_assets(assets, options)
       true
     end
 

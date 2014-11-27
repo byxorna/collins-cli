@@ -35,6 +35,6 @@ end
 begin
   exit target.new.parse!.validate!.run!
 rescue => e
-  #abort e.message
-  raise e
+  abort e.message
+  #raise e
 end
