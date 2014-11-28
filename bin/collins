@@ -7,17 +7,17 @@ ALLOWED_ACTIONS = {
   Collins::CLI::Log => ['log'],
   Collins::CLI::Provision => ['provision'],
   Collins::CLI::Power => ['power'],
-#  Collins::CLI::IPAM => ['ip','address','ipaddress','ipmi'],
+  Collins::CLI::IPAM => ['ipam','address','ipaddress'],
 }
 
 HELP_MESSAGE = "Usage: #{File.basename(File.realpath($0))} <command> [options]
 Available commands:
-  query, find:        Search for assets in Collins
-  modify, set:        Add and remove attributes, change statuses, and log to assets
-  log:                Display log messages on assets
-  provision:          Provision assets
-  power:              Control and show power status
-  ip, address, ipmi:  Allocate IPs, update IPMI info"
+  query, find:               Search for assets in Collins
+  modify, set:               Add and remove attributes, change statuses, and log to assets
+  log:                       Display log messages on assets
+  provision:                 Provision assets
+  power:                     Control and show power status
+  ipam, address, ipaddress:  Allocate and delete IPs, show IP pools"
 
 abort HELP_MESSAGE if ARGV.empty?
 action = ARGV.shift

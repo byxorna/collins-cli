@@ -63,7 +63,7 @@ module Collins::CLI
       options[:tags].each do |t|
         case options[:mode]
         when :status
-          res = api_call("power status is %s",:power_status,t)
+          res = api_call("checking power status",:power_status,t) {|status| status}
           success = false if !res
         when :power
           success &&= api_call("performing #{options[:power]}", :power!, t, options[:power])

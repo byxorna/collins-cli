@@ -8,6 +8,19 @@ module Collins::CLI::Formatter
     :column_override  => [],       # if set, these are the columns to display
     :show_header      => false,        # if the header for columns should be displayed
   }
+  ADDRESS_POOL_COLUMNS = [:name, :network, :start_address, :specified_gateway, :gateway, :broadcast, :possible_addresses]
+
+  def format_pools(pools, opts = {})
+    if pools.length > 0
+      opts = FORMATTING_DEFAULTS.merge(opts)
+      # map the hashes into openstructs that will respond to #send(:name)
+      ostructs = pools.map { |p| OpenStruct.new(Hash[p.map {|k,v| [k.downcase,v]}]) }
+      display_as_table(ostructs, ADDRESS_POOL_COLUMNS, opts[:separator], opts[:show_header])
+    else
+      raise "No pools found"
+    end
+  end
+
   def format_assets(assets, opts = {})
     opts = FORMATTING_DEFAULTS.merge(opts)
     if assets.length > 0

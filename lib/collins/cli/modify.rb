@@ -124,16 +124,16 @@ _EOF_
       exit_clean = true
       options[:tags].each do |t|
         if options[:log_message]
-          exit_clean = api_call("create #{options[:log_level].downcase} log #{options[:log_message].inspect}", :log!, t, options[:log_message], options[:log_level]) && exit_clean
+          exit_clean = api_call("logging #{options[:log_level].downcase} #{options[:log_message].inspect}", :log!, t, options[:log_message], options[:log_level]) && exit_clean
         end
         options[:attributes].each do |k,v|
-          exit_clean = api_call("set attribute #{k}=#{v}", :set_attribute!, t, k, v) && exit_clean
+          exit_clean = api_call("setting #{k}=#{v}", :set_attribute!, t, k, v) && exit_clean
         end
         options[:delete_attributes].each do |k|
-          exit_clean = api_call("delete attribute #{k}", :delete_attribute!, t, k) && exit_clean
+          exit_clean = api_call("deleting #{k}", :delete_attribute!, t, k) && exit_clean
         end
         if options[:status]
-          exit_clean = api_call("set status to #{options[:status]}#{options[:state] ? ":#{options[:state]}" : ''}", :set_status!, t, :status => options[:status], :state => options[:state], :reason => options[:reason]) && exit_clean
+          exit_clean = api_call("changing status to #{options[:status]}#{options[:state] ? ":#{options[:state]}" : ''}", :set_status!, t, :status => options[:status], :state => options[:state], :reason => options[:reason]) && exit_clean
         end
       end
       exit_clean

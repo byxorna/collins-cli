@@ -24,13 +24,19 @@ module Collins ; module CLI ; module Mixins
     end
   end
 
-  def api_call desc, method, tag, *varargs
+  def api_call desc, method, tag, *varargs, &block
+    printf "%s %s... " % [tag, desc]
     result,message = begin
       [collins.send(method,tag,*varargs),nil]
     rescue => e
       [false,e.message]
     end
-    puts "#{tag} #{desc % result}: #{result ? SUCCESS : ERROR}#{message.nil? ? nil : " (%s)" % e.message}"
+    if result && block_given?
+      # if the call was a success, let the caller format the response
+      formatted_result = yield result
+    end
+    str = "#{result ? SUCCESS : ERROR}#{formatted_result.nil? ? '' : " (#{formatted_result})"}#{message.nil? ? nil : " (%s)" % e.message}"
+    puts str
     result
   end
 
