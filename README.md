@@ -197,6 +197,33 @@ Manage and show power states with ```collins power```
       Reset some machines:
         collins power -t 001234,003456,007895 -p reboot
 
+## IPAM - collins ip
+
+Allocate and delete addresses, and show what address pools are configured in Collins.
+
+    Usage: collins ipam [options]
+    
+        -s, --show-pools                 Show IP pools
+        -H, --show-header                Show header fields in --show-pools output
+        -a, --allocate POOL              Allocate addresses in POOL
+        -n, --number [NUM]               Allocate NUM addresses (Defaults to 1 if omitted)
+        -d, --delete [POOL]              Delete addresses in POOL. Deletes ALL addresses if POOL is omitted
+    
+    General:
+        -t, --tags TAG[,...]             Tags to work on, comma separated
+        -C, --config CONFIG              Use specific Collins config yaml for Collins::Client
+        -h, --help                       Help
+    
+    Examples:
+      Show configured IP address pools:
+        collins ipam --show-pools -H
+      Allocate 2 IPs on each asset
+        collins ipam -t 001234,003456,007895 -a DEV_POOL -n2
+      Deallocate IPs in DEV_POOL pool on assets:
+        collins ipam -t 001234,003456,007895 -d DEV_POOL
+      Deallocate ALL IPs on assets:
+        collins ipam -t 001234,003456,007895 -d
+
 ## TODO
 
 * Implement IP allocation in collins-ipam

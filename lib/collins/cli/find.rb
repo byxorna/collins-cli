@@ -108,7 +108,8 @@ Examples:
     Query for all develnode6 nodes with a value for PUPPET_SERVER
       cf -n develnode6 -a puppet_server -H
 _EXAMPLES_
-      end.parse!(argv)
+      end
+      @parser.parse!(argv)
       # hostname is the final option, no flags
       search_attrs[:hostname] = argv.shift
       @parsed = true

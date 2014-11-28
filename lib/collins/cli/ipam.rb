@@ -14,7 +14,7 @@ module Collins::CLI
       :tags => [],
     }
 
-    attr_reader :options
+    attr_reader :options, :parser
 
     def initialize
       @options = DEFAULT_OPTIONS.clone
@@ -48,7 +48,8 @@ module Collins::CLI
         opts.separator "    #{PROG_NAME} -t 001234,003456,007895 -d DEV_POOL"
         opts.separator "  Deallocate ALL IPs on assets:"
         opts.separator "    #{PROG_NAME} -t 001234,003456,007895 -d"
-      end.parse!(argv)
+      end
+      @parser.parse!(argv)
 
       # only read tags from ARGF if we are going to do something with the tags
       if [:allocate,:delete].include? options[:mode] && (options[:tags].nil? or options[:tags].empty?)
@@ -73,7 +74,7 @@ module Collins::CLI
       success = true
       case options[:mode]
       when :help
-        puts @parser
+        puts parser
       when :show
         pools = collins.ipaddress_pools
         format_pools(pools, :show_header => options[:show_header])
