@@ -11,7 +11,7 @@ module Collins::CLI
     PROG_NAME = 'collins find'
     QUERY_DEFAULTS = {
       :operation => 'AND',
-      :size => 9999,
+      :size => 100,
     }
     OPTION_DEFAULTS = {
       :format          => :table,           # how to display the results
@@ -43,7 +43,7 @@ module Collins::CLI
         opts.on('-T','--type TYPE',String, "Only show assets with type TYPE") {|v| search_attrs[:type] = v}
         opts.on('-n','--nodeclass NODECLASS[,...]',Array, "Assets in nodeclass NODECLASS") {|v| search_attrs[:nodeclass] = v}
         opts.on('-p','--pool POOL[,...]',Array, "Assets in pool POOL") {|v| search_attrs[:pool] = v}
-        opts.on('-s','--size SIZE',Integer, "Number of assets to return (Default: #{query_opts[:size]})") {|v| query_opts[:size] = v}
+        opts.on('-s','--size SIZE',Integer, "Number of assets to return per page (Default: #{query_opts[:size]})") {|v| query_opts[:size] = v}
         opts.on('-r','--role ROLE[,...]',Array,"Assets in primary role ROLE") {|v| search_attrs[:primary_role] = v}
         opts.on('-R','--secondary-role ROLE[,...]',Array,"Assets in secondary role ROLE") {|v| search_attrs[:secondary_role] = v}
         opts.on('-i','--ip-address IP[,...]',Array,"Assets with IP address[es]") {|v| search_attrs[:ip_address] = v}
@@ -90,7 +90,7 @@ module Collins::CLI
 
         opts.separator ""
         opts.separator "Extra options:"
-        opts.on('--expire SECONDS',Integer,"Timeout in seconds (0 == forever)") {|v| options[:timeout] = v}
+        opts.on('--timeout SECONDS',Integer,"Timeout in seconds (0 == forever)") {|v| options[:timeout] = v}
         opts.on('-C','--config CONFIG',String,'Use specific Collins config yaml for Collins::Client') {|v| options[:config] = v}
         opts.on('-h','--help',"Help") {options[:mode] = :help}
 
@@ -145,8 +145,15 @@ _EXAMPLES_
       if options[:mode] == :help
         puts parser
       else
+        page = 0
+        assets, res = [], []
         begin
-          assets = collins.find(query_opts)
+          loop do
+            res = collins.find(query_opts.merge({:page => page}))
+            break if res.empty?
+            assets = assets.concat res
+            page += 1
+          end
         rescue => e
           raise "Error querying collins: #{e.message}"
         end
