@@ -98,15 +98,15 @@ module Collins::CLI
         opts.separator <<_EXAMPLES_
 Examples:
     Query for devnodes in DEVEL pool that are VMs
-      cf -n develnode -p DEVEL
+      #{PROG_NAME} -n develnode -p DEVEL
     Query for asset 001234, and show its system_password
-      cf -t 001234 -x system_password
+      #{PROG_NAME} -t 001234 -x system_password
     Query for all decommissioned VM assets
-      cf -a is_vm:true -S decommissioned
+      #{PROG_NAME} -a is_vm:true -S decommissioned
     Query for hosts matching hostname '^web6-'
-      cf ^web6-
+      #{PROG_NAME} ^web6-
     Query for all develnode6 nodes with a value for PUPPET_SERVER
-      cf -n develnode6 -a puppet_server -H
+      #{PROG_NAME} -n develnode6 -a puppet_server -H
 _EXAMPLES_
       end
       @parser.parse!(argv)

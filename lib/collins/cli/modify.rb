@@ -88,8 +88,8 @@ _EOF_
   Create a log entry:
     #{PROG_NAME} -t 001234 -l'computers are broken and everything is horrible' -Lwarning
   Read from stdin:
-    cf -n develnode | #{PROG_NAME} -d my_attribute
-    cf -n develnode -S allocated | #{PROG_NAME} -a collectd_version:5.2.1-52
+    collins find -n develnode | #{PROG_NAME} -d my_attribute
+    collins find -n develnode -S allocated | #{PROG_NAME} -a collectd_version:5.2.1-52
     echo -e "001234\\n001235\\n001236"| #{PROG_NAME} -a test_attribute:'hello world'
 _EOF_
       end.parse!(argv)
