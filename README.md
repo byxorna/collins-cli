@@ -4,6 +4,7 @@ collins-cli
 CLI scripts for interacting with Collins API
 
 [![Gem Version](https://badge.fury.io/rb/collins-cli.svg)](http://badge.fury.io/rb/collins-cli)
+[![Build Status](https://travis-ci.org/byxorna/collins-cli.png?branch=master)](https://travis-ci.org/byxorna/collins-cli)
 
 ## Overview
 
