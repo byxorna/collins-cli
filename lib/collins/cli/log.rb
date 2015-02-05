@@ -5,6 +5,7 @@
 
 require 'collins-cli'
 require 'set'
+require 'cgi'
 
 module Collins::CLI
   class Log
@@ -110,7 +111,9 @@ _EOE_
 
       begin
         @running = true
+        # collins sends us messages that are HTML escaped
         all_logs = grab_logs
+        all_logs.map! {|l| l.MESSAGE = CGI.unescapeHTML(l.MESSAGE) ; l }
         @logs_seen = all_logs.map(&:ID).to_set
         output_logs(all_logs)
         while @options[:follow]
