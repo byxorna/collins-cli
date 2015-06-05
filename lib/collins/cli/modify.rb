@@ -8,11 +8,6 @@ module Collins::CLI
     VALID_STATUSES = ["ALLOCATED","CANCELLED","DECOMMISSIONED","INCOMPLETE","MAINTENANCE","NEW","PROVISIONED","PROVISIONING","UNALLOCATED"]
     #TODO: this shouldnt be hardcoded. we should pull this from the API instead?
     # should elegantly support user-defined states without changing this script
-    VALID_STATES = {
-      "ALLOCATED" => ["CLAIMED","SPARE","RUNNING_UNMONITORED","UNMONITORED"],
-      "MAINTENANCE" => ["AWAITING_REVIEW","HARDWARE_PROBLEM","HW_TESTING","HARDWARE_UPGRADE","IPMI_PROBLEM","MAINT_NOOP","NETWORK_PROBLEM","RELOCATION",'PROVISIONING_PROBLEM'],
-      "ANY" => ["RUNNING","STARTING","STOPPING","TERMINATED"],
-    }
     LOG_LEVELS = Collins::Api::Logging::Severity.constants.map(&:to_s)
     OPTIONS_DEFAULTS = {
       :query_size => 9999,
@@ -64,10 +59,8 @@ module Collins::CLI
         opts.separator ""
         opts.separator "Allowed values (uppercase or lowercase is accepted):"
         opts.separator <<_EOF_
-  Status (-S,--set-status):
-    #{VALID_STATUSES.join(', ')}
-  States (-S,--set-status):
-    #{VALID_STATES.keys.map {|k| "#{k} ->\n      #{VALID_STATES[k].join(', ')}"}.join "\n    "}
+  Status:State (-S,--set-status):
+    See \`collins state --list\`
   Log levels (-L,--level):
     #{LOG_LEVELS.join(', ')}
 _EOF_
@@ -109,11 +102,8 @@ _EOF_
       #TODO this is never checked because we are making option parser vet our options for levels. Catch OptionParser::InvalidArgument?
       raise "Log level #{options[:log_level]} is invalid! Use one of #{LOG_LEVELS.join(', ')}" unless Collins::Api::Logging::Severity.valid?(options[:log_level])
 
-      # if any statuses or states, validate them against allowed values
       unless options[:status].nil?
         raise "Invalid status #{options[:status]} (Should be in #{VALID_STATUSES.join(', ')})" unless VALID_STATUSES.include? options[:status]
-      states_for_status = VALID_STATES["ANY"].concat((VALID_STATES[options[:status]].nil?) ? [] : VALID_STATES[options[:status]])
-        raise "State #{options[:state]} doesn't apply to status #{options[:status]} (Should be one of #{states_for_status.join(', ')})" unless options[:state].nil? or states_for_status.include?(options[:state])
       end
 
 
