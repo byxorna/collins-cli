@@ -8,7 +8,7 @@ ALLOWED_ACTIONS = {
   Collins::CLI::Provision => ['provision'],
   Collins::CLI::Power => ['power'],
   Collins::CLI::IPAM => ['ipam','address','ipaddress'],
-  Collins::CLI::State => ['state'],
+  Collins::CLI::State => ['state','status'],
 }
 
 HELP_MESSAGE = "Usage: #{File.basename(File.realpath($0))} <command> [options]
@@ -18,7 +18,7 @@ Available commands:
   log:                       Display log messages on assets
   provision:                 Provision assets
   power:                     Control and show power status
-  state:                     Show and manage states and statuses via State API
+  state, status:             Show and manage states and statuses via State API
   ipam, address, ipaddress:  Allocate and delete IPs, show IP pools"
 
 abort HELP_MESSAGE if ARGV.empty?
