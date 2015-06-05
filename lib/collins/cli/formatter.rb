@@ -9,6 +9,7 @@ module Collins::CLI::Formatter
     :show_header      => false,        # if the header for columns should be displayed
   }
   ADDRESS_POOL_COLUMNS = [:name, :network, :start_address, :specified_gateway, :gateway, :broadcast, :possible_addresses]
+  STATUS_STATE_COLUMNS = [:status_name, :state_name, :status_description, :description]
 
   def format_pools(pools, opts = {})
     if pools.length > 0
@@ -18,6 +19,28 @@ module Collins::CLI::Formatter
       display_as_table(ostructs, ADDRESS_POOL_COLUMNS, opts[:separator], opts[:show_header])
     else
       raise "No pools found"
+    end
+  end
+
+  def format_states(states, opts = {})
+    if states.length > 0
+      opts = FORMATTING_DEFAULTS.merge(opts)
+      # map the hashes into openstructs that will respond to #send(:name)
+      ostructs = states.map do |s|
+        OpenStruct.new({
+          :status_name => s.status.name || 'Any',
+          :status_id => s.status.id || 0, # assign 0 to "Any" status
+          :status_description => s.status.description || 'Any status',
+          :state_name => s.name,
+          :state_label => s.label,
+          :state_id => s.id,
+          :description => s.description
+        })
+      end
+      ostructs.sort_by! {|x| "#{x.status_id}#{x.state_id}"}
+      display_as_table(ostructs, STATUS_STATE_COLUMNS, opts[:separator], opts[:show_header])
+    else
+      raise "No states found"
     end
   end
 

@@ -227,7 +227,6 @@ Allocate and delete addresses, and show what address pools are configured in Col
 
 ## TODO
 
-* Implement IP allocation in collins-ipam
 * Implement IPMI stuff in collins-ipmi
 * Share code between binaries more
 * Write some tests
