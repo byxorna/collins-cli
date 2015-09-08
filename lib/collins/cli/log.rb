@@ -146,8 +146,9 @@ _EOE_
       tag_width = sorted_logs.map{|l| l.ASSET_TAG.length}.max
       sev_width = sorted_logs.map{|l| l.TYPE.length}.max
       time_width = sorted_logs.map{|l| l.CREATED.length}.max
+      creator_width = sorted_logs.map{|l| l.CREATED_BY.length}.max
       sorted_logs.each do |l|
-        puts "%-#{time_width}s: %-#{sev_width}s %-#{tag_width}s %s" % [l.CREATED, l.TYPE, l.ASSET_TAG, l.MESSAGE]
+        puts "%-#{time_width}s: %-#{creator_width}s %-#{sev_width}s %-#{tag_width}s %s" % [l.CREATED, l.CREATED.BY, l.TYPE, l.ASSET_TAG, l.MESSAGE]
       end
     end
 
