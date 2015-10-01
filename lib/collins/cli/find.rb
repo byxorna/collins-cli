@@ -44,6 +44,7 @@ module Collins::CLI
         opts.on('-n','--nodeclass NODECLASS[,...]',Array, "Assets in nodeclass NODECLASS") {|v| search_attrs[:nodeclass] = v}
         opts.on('-p','--pool POOL[,...]',Array, "Assets in pool POOL") {|v| search_attrs[:pool] = v}
         opts.on('-s','--size SIZE',Integer, "Number of assets to return per page (Default: #{query_opts[:size]})") {|v| query_opts[:size] = v}
+        opts.on('--limit NUM', Integer, "Limit total results to NUM of assets") { |v| options[:limit] = v}
         opts.on('-r','--role ROLE[,...]',Array,"Assets in primary role ROLE") {|v| search_attrs[:primary_role] = v}
         opts.on('-R','--secondary-role ROLE[,...]',Array,"Assets in secondary role ROLE") {|v| search_attrs[:secondary_role] = v}
         opts.on('-i','--ip-address IP[,...]',Array,"Assets with IP address[es]") {|v| search_attrs[:ip_address] = v}
@@ -149,6 +150,7 @@ _EXAMPLES_
         assets, res = [], []
         begin
           loop do
+            break if !options[:limit].nil? and assets.length >= options[:limit]
             res = collins.find(query_opts.merge({:page => page}))
             break if res.empty?
             assets = assets.concat res
@@ -157,7 +159,11 @@ _EXAMPLES_
         rescue => e
           raise "Error querying collins: #{e.message}"
         end
-        format_assets(assets, options)
+        unless options[:limit].nil?
+          format_assets(assets.first(options[:limit]), options)
+        else
+          format_assets(assets, options)
+        end
       end
       true
     end
