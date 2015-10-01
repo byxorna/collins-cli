@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    collins-cli (0.2.5)
+    collins-cli (0.2.6)
       collins_auth (~> 0.1.2)
       collins_client (~> 0.2.16)
       colorize (~> 0.7.3)
@@ -43,6 +43,3 @@ DEPENDENCIES
   collins-cli!
   rake (~> 10.4.0)
   rspec (~> 3.1.0)
-
-BUNDLED WITH
-   1.10.6

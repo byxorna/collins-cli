@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name          = 'collins-cli'
-  s.version       = '0.2.5'
+  s.version       = '0.2.6'
   s.authors       = ['Gabe Conradi']
   s.email         = ['gabe@tumblr.com','gummybearx@gmail.com']
   s.homepage      = 'http://github.com/byxorna/collins-cli'
@@ -23,5 +23,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rspec", '~> 3.1.0'
 
   s.platform = Gem::Platform::RUBY
-  s.required_ruby_version = '>= 1.9.3'
+  s.required_ruby_version = '>= 1.9.2'
 end
