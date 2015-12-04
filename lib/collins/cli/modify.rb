@@ -36,9 +36,8 @@ module Collins::CLI
             puts opts.help
             exit 1
           end
-          a,*v = x.split(':')
-          # handle values with : in them :)
-          @options[:attributes][a.upcase.to_sym] = v.join(":")
+          a,v = x.split(':', 2) # attribute:value where value might contain :s
+          @options[:attributes][a.upcase.to_sym] = v
         end
         opts.on('-d','--delete-attribute attribute',String,"Delete attribute.") {|v| @options[:delete_attributes] << v.to_sym }
         opts.on('-S','--set-status status[:state]',String,'Set status (and optionally state) to status:state. Requires --reason') do |v|

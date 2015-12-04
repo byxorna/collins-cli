@@ -61,7 +61,7 @@ module Collins::CLI
         end
         opts.on('-a','--attribute attribute[:value[,...]]',String,"Arbitrary attributes and values to match in query. : between key and value") do |x|
           x.split(',').each do |p|
-            a,v = p.split(':')
+            a,v = p.split(':', 2) # attribute:value where value might contain :s
             a = a.to_sym
             if not search_attrs[a].nil? and not search_attrs[a].is_a? Array
               # its a single value, turn it into an array
