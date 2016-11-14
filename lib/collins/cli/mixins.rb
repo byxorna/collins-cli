@@ -25,7 +25,7 @@ module Collins ; module CLI ; module Mixins
   end
 
   def api_call desc, method, tag, *varargs, &block
-    printf "%s %s... " % [tag, desc]
+    print "%s %s... " % [tag, desc]
     result,message = begin
       [collins.send(method,tag,*varargs),nil]
     rescue => e
