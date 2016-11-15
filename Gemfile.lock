@@ -1,9 +1,9 @@
 PATH
   remote: .
   specs:
-    collins-cli (0.2.8)
+    collins-cli (0.2.9)
       collins_auth (~> 0.1.2)
-      collins_client (~> 0.2.16)
+      collins_client (~> 0.2.18)
       colorize (~> 0.7.3)
 
 GEM

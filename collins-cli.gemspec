@@ -2,9 +2,9 @@
 
 Gem::Specification.new do |s|
   s.name          = 'collins-cli'
-  s.version       = '0.2.8'
+  s.version       = '0.2.9'
   s.authors       = ['Gabe Conradi']
-  s.email         = ['gabe@tumblr.com','gummybearx@gmail.com']
+  s.email         = ['gabe.conradi@gmail.com']
   s.homepage      = 'http://github.com/byxorna/collins-cli'
   s.summary       = %q{CLI utilities to interact with the Collins API}
   s.description   = %q{CLI utilities to interact with the Collins API}
@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency "colorize", '~> 0.7.3'
   s.add_dependency "collins_auth", '~> 0.1.2'
-  s.add_dependency "collins_client", '~> 0.2.16'
+  s.add_dependency "collins_client", '~> 0.2.18'
   s.add_development_dependency "rake", '~> 10.4.0'
   s.add_development_dependency "rspec", '~> 3.1.0'
 
