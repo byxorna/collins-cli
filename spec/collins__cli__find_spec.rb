@@ -2,8 +2,8 @@ require 'spec_helper'
 
 describe Collins::CLI::Find do
   before(:each) do
-    Collins::CLI::Find.stub(:format_assets).and_return(true)
-    Collins::CLI::Find.stub_chain(:collins,:find).and_return([])
+    allow(Collins::CLI::Find).to receive(:format_assets).and_return(true)
+    allow(Collins::CLI::Find).to receive_message_chain(:collins,:find).and_return([])
     subject { Collins::CLI::Find.new }
   end
   context "#parse!" do
