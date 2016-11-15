@@ -4,7 +4,7 @@ Gem::Specification.new do |s|
   s.name          = 'collins-cli'
   s.version       = '0.2.9'
   s.authors       = ['Gabe Conradi']
-  s.email         = ['gabe.conradi@gmail.com']
+  s.email         = ['gabe.conradi@gmail.com','gummybearx@gmail.com']
   s.homepage      = 'http://github.com/byxorna/collins-cli'
   s.summary       = %q{CLI utilities to interact with the Collins API}
   s.description   = %q{CLI utilities to interact with the Collins API}
