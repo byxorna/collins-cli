@@ -229,21 +229,21 @@ Allocate and delete addresses, and show what address pools are configured in Col
 
 List statuses and states. TODO: implement state creation, deleting, modification
 
-Usage: collins state [options]
-    -l, --list                       List states.
-    -h, --help                       Help
-
-Table formatting:
-    -H, --show-header                Show header fields in output
-    -f, --field-separator SEPARATOR  Separator between columns in output (Default: 	)
-
-Extra options:
-        --timeout SECONDS            Timeout in seconds (0 == forever)
-    -C, --config CONFIG              Use specific Collins config yaml for Collins::Client
-
-Examples:
-  Show states and statuses:
-    collins state --list
+    Usage: collins state [options]
+        -l, --list                       List states.
+        -h, --help                       Help
+    
+    Table formatting:
+        -H, --show-header                Show header fields in output
+        -f, --field-separator SEPARATOR  Separator between columns in output (Default: 	)
+    
+    Extra options:
+            --timeout SECONDS            Timeout in seconds (0 == forever)
+        -C, --config CONFIG              Use specific Collins config yaml for Collins::Client
+    
+    Examples:
+      Show states and statuses:
+        collins state --list
 
 ## TODO
 
