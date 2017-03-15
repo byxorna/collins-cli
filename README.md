@@ -245,6 +245,36 @@ List statuses and states. TODO: implement state creation, deleting, modification
       Show states and statuses:
         collins state --list
 
+## Datacenter configurations - collins dc
+
+Create and manage multiple Collins configurations. This utility allows you to keep multiple collins configuration files in your home directory, one for each collins site/datacenter/instance in your organization. This utility lets you easily set up new collins configurations, switch between them, and list all your configured datacenters.
+
+    Usage: collins dc [options]
+    
+    New Configuration:
+        -n, --new DATACENTER             Create a new configuration file for DATACENTER at ~/.collins.yml.DATACENTER
+        -H, --host URI                   Use URI for host when setting up new datacenter
+        -u, --username USER              Use USER for username when setting up new datacenter
+        -p, --password PASSWORD          Use PASSWORD for password when setting up new datacenter
+    
+    List:
+        -l, --list                       List configured collins instances
+    
+    General:
+        -h, --help                       Help
+    
+    Examples:
+      Show current Collins instance in use
+        collins dc
+      Set current Collins instance to jfk01
+        collins dc jfk01
+      List all Collins instances configured
+        collins dc -l
+      Set up new Collins instance for sfo01
+        collins dc --new sfo01 --host https://collins.sfo01.company.net
+      Iterate over all instances and find assets
+        for dc in $(collins dc -l) ; do collins dc $dc ; collins find -p DEVELOPMENT ; done
+
 ## TODO
 
 * Implement IPMI stuff in collins-ipmi
