@@ -2,17 +2,19 @@
 require 'collins-cli'
 
 ALLOWED_ACTIONS = {
-  Collins::CLI::Find => ['query','find'],
-  Collins::CLI::Modify => ['modify','set'],
-  Collins::CLI::Log => ['log'],
+  Collins::CLI::Find      => ['query','find'],
+  Collins::CLI::Modify    => ['modify','set'],
+  Collins::CLI::Log       => ['log'],
   Collins::CLI::Provision => ['provision'],
-  Collins::CLI::Power => ['power'],
-  Collins::CLI::IPAM => ['ipam','address','ipaddress'],
-  Collins::CLI::State => ['state','status'],
+  Collins::CLI::Power     => ['power'],
+  Collins::CLI::IPAM      => ['ipam','address','ipaddress'],
+  Collins::CLI::State     => ['state','status'],
+  Collins::CLI::DC        => ['dc','datacenter'],
 }
 
 HELP_MESSAGE = "Usage: #{File.basename(File.realpath($0))} <command> [options]
 Available commands:
+  dc, datacenter:            Manage multiple Collins configurations
   query, find:               Search for assets in Collins
   modify, set:               Add and remove attributes, change statuses, and log to assets
   log:                       Display log messages on assets
