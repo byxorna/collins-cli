@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    collins-cli (0.2.10)
+    collins-cli (0.2.11)
       collins_auth (~> 0.1.2)
       collins_client (~> 0.2.18)
       colorize (~> 0.7.3)
