@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name          = 'collins-cli'
-  s.version       = '0.2.10'
+  s.version       = '0.2.11'
   s.authors       = ['Gabe Conradi']
   s.email         = ['gabe.conradi@gmail.com','gummybearx@gmail.com']
   s.homepage      = 'http://github.com/byxorna/collins-cli'
