@@ -19,7 +19,7 @@ describe Collins::CLI::Find do
       end
     end
     [
-      %w|-ZZZZZZZ|,
+      %w|-OOOOOO|,
       %w|-K -Z_ LJIFJ?=I)|,
     ].each do |args|
       it "Should fail to parse unknown flags #{args.inspect}" do
