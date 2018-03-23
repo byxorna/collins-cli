@@ -1,9 +1,9 @@
 PATH
   remote: .
   specs:
-    collins-cli (0.2.11)
+    collins-cli (0.2.12)
       collins_auth (~> 0.1.2)
-      collins_client (~> 0.2.18)
+      collins_client (~> 0.2.21)
       colorize (~> 0.7.3)
 
 GEM
@@ -12,16 +12,16 @@ GEM
     collins_auth (0.1.2)
       collins_client
       highline
-    collins_client (0.2.18)
+    collins_client (0.2.21)
       httparty (~> 0.11.0)
     colorize (0.7.7)
     diff-lcs (1.2.5)
-    highline (1.7.8)
+    highline (1.7.10)
     httparty (0.11.0)
       multi_json (~> 1.0)
       multi_xml (>= 0.5.2)
-    multi_json (1.12.1)
-    multi_xml (0.5.5)
+    multi_json (1.13.1)
+    multi_xml (0.6.0)
     rake (10.4.2)
     rspec (3.1.0)
       rspec-core (~> 3.1.0)
@@ -45,4 +45,4 @@ DEPENDENCIES
   rspec (~> 3.1.0)
 
 BUNDLED WITH
-   1.13.6
+   1.16.1
