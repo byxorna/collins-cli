@@ -41,7 +41,7 @@ module Collins::CLI
         opts.banner = "Usage: #{PROG_NAME} [options] [hostnamepattern]"
         opts.separator "Query options:"
         opts.on('-t','--tag TAG[,...]',Array, "Assets with tag[s] TAG") {|v| search_attrs[:tag] = v}
-        opts.on('-Z','--remote-lookup',"Query remote datacenters for asset") {|v| search_attrs[:remoteLookup] = v}
+        opts.on('-Z','--remote-lookup',"Query remote datacenters for asset (Default: #{query_opts[:remoteLookup]})") {|v| search_attrs[:remoteLookup] = v}
         opts.on('-T','--type TYPE',String, "Only show assets with type TYPE") {|v| search_attrs[:type] = v}
         opts.on('-n','--nodeclass NODECLASS[,...]',Array, "Assets in nodeclass NODECLASS") {|v| search_attrs[:nodeclass] = v}
         opts.on('-p','--pool POOL[,...]',Array, "Assets in pool POOL") {|v| search_attrs[:pool] = v}
